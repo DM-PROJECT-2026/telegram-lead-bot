@@ -12,6 +12,10 @@
 
 ![Заявка в SQLite](docs/screenshots/database.png)
 
+### Уведомление о сбое
+
+![Тестовое уведомление о сбое службы](docs/screenshots/failure-alert.png)
+
 ## Перед началом
 
 Нужны Python 3.10+, аккаунт Telegram и токен бота от `@BotFather`.
