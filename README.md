@@ -48,6 +48,7 @@
 
 - `/start` — начать заявку.
 - `/cancel` — отменить заполнение.
+- `/privacy` — краткая информация об обработке данных.
 - `/leads` — последние 10 заявок; доступно только администратору.
 - `/stats` — количество заявок всего и за текущий день UTC; доступно только администратору.
 
@@ -140,4 +141,17 @@ systemctl enable --now telegram-lead-bot-backup.timer
 
 ```bash
 systemctl list-timers telegram-lead-bot-backup.timer
+```
+
+## Уведомление о критическом сбое
+
+Для сервера подготовлен файл `deploy/systemd/telegram-lead-bot-failure@.service`. Он отправляет администратору сообщение в Telegram, если служба бота окончательно остановится после нескольких неудачных перезапусков.
+
+После обновления проекта на сервере установите или обновите файлы службы от `root`:
+
+```bash
+cp /home/leadbot/telegram-lead-bot/deploy/systemd/telegram-lead-bot.service /etc/systemd/system/
+cp /home/leadbot/telegram-lead-bot/deploy/systemd/telegram-lead-bot-failure@.service /etc/systemd/system/
+systemctl daemon-reload
+systemctl restart telegram-lead-bot
 ```

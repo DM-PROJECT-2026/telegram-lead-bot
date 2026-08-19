@@ -1,0 +1,18 @@
+[Unit]
+Description=Telegram Lead Bot
+After=network-online.target
+Wants=network-online.target
+OnFailure=telegram-lead-bot-failure@%N.service
+StartLimitIntervalSec=60
+StartLimitBurst=3
+
+[Service]
+Type=simple
+User=leadbot
+WorkingDirectory=/home/leadbot/telegram-lead-bot
+ExecStart=/home/leadbot/telegram-lead-bot/.venv/bin/python /home/leadbot/telegram-lead-bot/main.py
+Restart=on-failure
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target

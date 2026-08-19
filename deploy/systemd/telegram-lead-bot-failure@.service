@@ -1,0 +1,8 @@
+[Unit]
+Description=Send Telegram notification after %i failure
+
+[Service]
+Type=oneshot
+User=leadbot
+WorkingDirectory=/home/leadbot/telegram-lead-bot
+ExecStart=/home/leadbot/telegram-lead-bot/.venv/bin/python /home/leadbot/telegram-lead-bot/scripts/notify_failure.py %i

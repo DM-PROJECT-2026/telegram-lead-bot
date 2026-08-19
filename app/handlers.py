@@ -20,7 +20,11 @@ def valid_text(text: str) -> bool:
 
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
     context.user_data.clear()
-    await update.message.reply_text("Здравствуйте! Я помогу оставить заявку.\n\nКак вас зовут?")
+    await update.message.reply_text(
+        "Здравствуйте! Я помогу оставить заявку.\n\n"
+        "Продолжая заполнение, вы соглашаетесь на обработку указанных данных "
+        "для связи по заявке. Подробнее: /privacy\n\nКак вас зовут?"
+    )
     return NAME
 
 async def name(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
@@ -115,6 +119,18 @@ async def cancel(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
     context.user_data.clear()
     await update.message.reply_text("Заполнение отменено. Чтобы начать снова, отправьте /start.")
     return ConversationHandler.END
+
+
+async def privacy(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
+    """Показывает пользователю краткую политику обработки данных."""
+    await update.message.reply_text(
+        "<b>Обработка данных</b>\n\n"
+        "Бот получает имя, телефон, страну и комментарий только для обработки вашей "
+        "заявки и связи с вами. Данные хранятся в защищённой базе владельца бота и "
+        "не передаются третьим лицам без законного основания.\n\n"
+        "Чтобы отозвать заявку или задать вопрос о данных, обратитесь к владельцу бота.",
+        parse_mode=ParseMode.HTML,
+    )
 
 async def unexpected(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
     await update.message.reply_text("Пожалуйста, отправьте ответ обычным текстом или /cancel.")
