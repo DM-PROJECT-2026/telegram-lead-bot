@@ -113,3 +113,29 @@ systemctl stop telegram-lead-bot
 ```bash
 systemctl start telegram-lead-bot
 ```
+
+## Резервные копии заявок
+
+Скрипт `scripts/backup_database.py` создаёт корректную копию SQLite-базы через встроенный механизм SQLite, хранит её в папке `backups/` и автоматически оставляет только 14 последних копий. Папка с копиями не попадает в GitHub.
+
+Чтобы создать резервную копию вручную на сервере:
+
+```bash
+cd /home/leadbot/telegram-lead-bot
+.venv/bin/python scripts/backup_database.py
+```
+
+Чтобы включить ежедневный автоматический бэкап в 03:30 UTC, выполните на сервере от пользователя `root`:
+
+```bash
+cp /home/leadbot/telegram-lead-bot/deploy/systemd/telegram-lead-bot-backup.service /etc/systemd/system/
+cp /home/leadbot/telegram-lead-bot/deploy/systemd/telegram-lead-bot-backup.timer /etc/systemd/system/
+systemctl daemon-reload
+systemctl enable --now telegram-lead-bot-backup.timer
+```
+
+Проверить расписание бэкапов:
+
+```bash
+systemctl list-timers telegram-lead-bot-backup.timer
+```

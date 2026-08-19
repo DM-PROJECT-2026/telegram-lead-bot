@@ -1,0 +1,9 @@
+[Unit]
+Description=Backup Telegram Lead Bot SQLite database
+After=telegram-lead-bot.service
+
+[Service]
+Type=oneshot
+User=leadbot
+WorkingDirectory=/home/leadbot/telegram-lead-bot
+ExecStart=/home/leadbot/telegram-lead-bot/.venv/bin/python /home/leadbot/telegram-lead-bot/scripts/backup_database.py

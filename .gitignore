@@ -1,6 +1,7 @@
 # Secrets and local data
 .env
 data/*.db
+backups/
 
 # Python
 __pycache__/
@@ -13,4 +14,3 @@ venv/
 .vscode/
 .DS_Store
 Thumbs.db
-
