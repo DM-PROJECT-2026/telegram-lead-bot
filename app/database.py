@@ -30,3 +30,30 @@ def save_lead(path: Path, *, telegram_user_id: int, username: str | None,
         """, (telegram_user_id, username, name, phone, country, comment, created_at))
     return created_at
 
+
+def get_recent_leads(path: Path, limit: int = 10) -> list[dict[str, object]]:
+    """Возвращает последние заявки для администратора."""
+    with sqlite3.connect(path) as conn:
+        conn.row_factory = sqlite3.Row
+        rows = conn.execute(
+            """
+            SELECT id, name, phone, country, comment, created_at
+            FROM leads
+            ORDER BY id DESC
+            LIMIT ?
+            """,
+            (limit,),
+        ).fetchall()
+    return [dict(row) for row in rows]
+
+
+def get_leads_count(path: Path, since_utc: str | None = None) -> int:
+    """Возвращает общее количество заявок либо число заявок после заданной даты."""
+    with sqlite3.connect(path) as conn:
+        if since_utc:
+            row = conn.execute(
+                "SELECT COUNT(*) FROM leads WHERE created_at >= ?", (since_utc,)
+            ).fetchone()
+        else:
+            row = conn.execute("SELECT COUNT(*) FROM leads").fetchone()
+    return int(row[0])

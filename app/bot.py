@@ -3,7 +3,7 @@ import logging
 from telegram.ext import Application, CallbackQueryHandler, CommandHandler, ConversationHandler, MessageHandler, filters
 from app.config import DATABASE_PATH, Settings
 from app.database import init_database
-from app.handlers import NAME, PHONE, COUNTRY, COMMENT, CONFIRMATION, start, name, phone, country, comment, confirm, restart, cancel, unexpected
+from app.handlers import NAME, PHONE, COUNTRY, COMMENT, CONFIRMATION, start, name, phone, country, comment, confirm, restart, cancel, show_recent_leads, show_stats, unexpected
 
 logger = logging.getLogger(__name__)
 
@@ -28,7 +28,8 @@ def create_application(settings: Settings) -> Application:
     )
     app = Application.builder().token(settings.bot_token).build()
     app.add_handler(dialog)
+    app.add_handler(CommandHandler("leads", lambda update, context: show_recent_leads(update, context, settings)))
+    app.add_handler(CommandHandler("stats", lambda update, context: show_stats(update, context, settings)))
     app.add_handler(MessageHandler(filters.ALL, unexpected))
     app.add_error_handler(error_handler)
     return app
-

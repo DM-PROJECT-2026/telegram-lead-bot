@@ -1,4 +1,5 @@
 """Логика диалога с пользователем."""
+from datetime import datetime, timezone
 import logging
 import re
 import sqlite3
@@ -7,7 +8,7 @@ from telegram import Update
 from telegram.constants import ParseMode
 from telegram.ext import ContextTypes, ConversationHandler
 from app.config import DATABASE_PATH, Settings
-from app.database import save_lead
+from app.database import get_leads_count, get_recent_leads, save_lead
 from app.keyboards import confirmation_keyboard
 
 logger = logging.getLogger(__name__)
@@ -118,3 +119,63 @@ async def cancel(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
 async def unexpected(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
     await update.message.reply_text("Пожалуйста, отправьте ответ обычным текстом или /cancel.")
     return ConversationHandler.END
+
+
+def _is_admin(update: Update, settings: Settings) -> bool:
+    user = update.effective_user
+    return bool(user and user.id == settings.admin_chat_id)
+
+
+async def show_recent_leads(
+    update: Update, context: ContextTypes.DEFAULT_TYPE, settings: Settings
+) -> None:
+    """Показывает администратору последние десять заявок."""
+    if not _is_admin(update, settings):
+        await update.message.reply_text("Эта команда доступна только администратору.")
+        return
+
+    try:
+        leads = get_recent_leads(DATABASE_PATH)
+    except sqlite3.Error:
+        logger.exception("Не удалось получить список заявок")
+        await update.message.reply_text("Не удалось получить заявки. Попробуйте позже.")
+        return
+
+    if not leads:
+        await update.message.reply_text("Подтверждённых заявок пока нет.")
+        return
+
+    lines = ["<b>Последние заявки:</b>"]
+    for lead in leads:
+        comment = str(lead["comment"])
+        short_comment = comment[:120] + ("…" if len(comment) > 120 else "")
+        lines.append(
+            f"\n<b>#{lead['id']} — {escape(str(lead['name']))}</b>\n"
+            f"{escape(str(lead['phone']))}, {escape(str(lead['country']))}\n"
+            f"{escape(short_comment)}\n"
+            f"<i>{escape(str(lead['created_at']))}</i>"
+        )
+    await update.message.reply_text("\n".join(lines), parse_mode=ParseMode.HTML)
+
+
+async def show_stats(
+    update: Update, context: ContextTypes.DEFAULT_TYPE, settings: Settings
+) -> None:
+    """Показывает администратору количество заявок за всё время и за сегодня."""
+    if not _is_admin(update, settings):
+        await update.message.reply_text("Эта команда доступна только администратору.")
+        return
+
+    today_utc = datetime.now(timezone.utc).date().isoformat()
+    try:
+        total = get_leads_count(DATABASE_PATH)
+        today = get_leads_count(DATABASE_PATH, since_utc=today_utc)
+    except sqlite3.Error:
+        logger.exception("Не удалось получить статистику заявок")
+        await update.message.reply_text("Не удалось получить статистику. Попробуйте позже.")
+        return
+
+    await update.message.reply_text(
+        f"<b>Статистика заявок</b>\n\nВсего: {total}\nСегодня (UTC): {today}",
+        parse_mode=ParseMode.HTML,
+    )
