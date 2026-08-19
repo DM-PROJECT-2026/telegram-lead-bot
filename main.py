@@ -8,6 +8,9 @@ def main() -> None:
         format="%(asctime)s | %(levelname)s | %(name)s | %(message)s",
         level=logging.INFO,
     )
+    # HTTP-клиент пишет полный URL запроса, в котором содержится токен Telegram.
+    # Оставляем в логах только предупреждения и ошибки.
+    logging.getLogger("httpx").setLevel(logging.WARNING)
     try:
         app = create_application(get_settings())
     except ValueError as error:
@@ -18,4 +21,3 @@ def main() -> None:
 
 if __name__ == "__main__":
     main()
-
