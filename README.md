@@ -8,6 +8,10 @@
 
 ![Диалог с Telegram-ботом](docs/screenshots/bot-dialog.png)
 
+### Сохранение заявки в SQLite
+
+![Заявка в SQLite](docs/screenshots/database.png)
+
 ## Перед началом
 
 Нужны Python 3.10+, аккаунт Telegram и токен бота от `@BotFather`.
